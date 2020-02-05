@@ -8,6 +8,7 @@ App.projects = App.cable.subscriptions.create("projectsChannel", {
   collection: function() {
     return $('.project-box');
   },
+  // continually tries to connect to existing projects
   connected: function() {
     return setTimeout((function(_this) {
       return function() {
@@ -15,6 +16,7 @@ App.projects = App.cable.subscriptions.create("projectsChannel", {
       };
     })(this), 1000);
   },
+  // will grab each project on the page and try to connect to each stream. if no projects it ends stream
   folowVisibleprojects: function() {
     var i, len, results, project, projects;
     projects = this.collection().map(function() {
@@ -33,10 +35,12 @@ App.projects = App.cable.subscriptions.create("projectsChannel", {
       return this.perform('unfollow');
     }
   },
+  // will end stream
   disconnected: function() {
     return this.perform('unfollow')
   },
-  received: function() {
+  // receives event data from connected streams and updates the corresponding project with the new html
+  received: function(data) {
     var box;
     console.log("[ActionCable] [project] [" + data.id + "]", data);
     box = $(".project-box[data-project='" + data.id + "']");
